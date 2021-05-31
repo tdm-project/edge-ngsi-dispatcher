@@ -1,0 +1,4 @@
+click
+click-config-file
+paho-mqtt
+requests
