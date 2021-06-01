@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-#  Copyright 2020, 2021, CRS4 - Center for Advanced Studies, Research and Development
-#  in Sardinia
+#  Copyright 2020, 2021, CRS4 - Center for Advanced Studies, Research and
+#  Development in Sardinia
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ class MQTTConnection():
         # pylint: disable=unused-argument
         _message = msg.payload.decode()
         self._logger.debug(
-            "Received message -  topic:\'{:s}\', message:\'{:s}\'".
+            "Received MQTT message - topic:\'{:s}\', message:\'{:s}\'".
             format(msg.topic, _message))
 
         if self._remote_relay_enabled:
@@ -156,9 +156,13 @@ class MQTTConnection():
 
             fields = json.loads(_message)
 
-            _sensors_definition = userdata['SENSORS_DEFINITION']['sensors']
+            _sensors_definition = userdata['SENSORS_DEFINITION']
             if _station_id in [*_sensors_definition]:
-                _entity_name = _sensors_definition[_station_id]['entity_name']
+                _entity_name = _sensors_definition[_station_id]['entity-name']
+                _fiware_service = (_sensors_definition[_station_id]
+                                   ['fiware-service'])
+                _fiware_servicepath = (_sensors_definition[_station_id]
+                                       ['fiware-servicepath'])
                 data_point = {
                     "dateObserved": {
                         "value": "2020-06-08T17:54:00"  # dateObserved
@@ -180,11 +184,8 @@ class MQTTConnection():
 
                 try:
                     _headers = {
-                        'Fiware-Service':
-                            userdata['SENSORS_DEFINITION']['fiware-service'],
-                        'Fiware-ServicePath':
-                            userdata['SENSORS_DEFINITION']
-                            ['fiware-servicepath'],
+                        'Fiware-Service': _fiware_service,
+                        'Fiware-ServicePath': _fiware_servicepath,
                         'X-Auth-Token': userdata['NGSI_REMOTE_TOKEN'],
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
@@ -195,6 +196,9 @@ class MQTTConnection():
                     _resource = f"/v2/entities/{_entity_name}/attrs"
                     _url = f"{_server}{_resource}"
                     _verb = "PATCH"
+                    self._logger.debug(
+                        "Sending NGSI message - header: %s, message: %s" %
+                        (_headers, data_point))
                     response = requests.request(
                         _verb, _url, headers=_headers,
                         data=json.dumps(data_point))
