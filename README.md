@@ -37,6 +37,7 @@ ngsi_remote_token="<OAUTH2_TOKEN>"
 ```
 
 *sensors.json*:
+```json
 {
     "<DEVICE_ID_1>": {
         "id": "<DEVICE_ID_1>",
@@ -51,6 +52,7 @@ ngsi_remote_token="<OAUTH2_TOKEN>"
         "fiware-servicepath": "<FIWARE_SERVICEPATH>"
     }
 }
+```
 
 ```
 Usage: edge_ngsi_dispatcher.py [OPTIONS]
