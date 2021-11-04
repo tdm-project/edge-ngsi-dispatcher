@@ -34,6 +34,7 @@ ngsi_remote_host="<REMOTE_ORION_HOST>"
 # ngsi_remote_user="none"
 # ngsi_remote_pass="none"
 ngsi_remote_token="<OAUTH2_TOKEN>"
+ngsi_remote_https="<True|False>"
 ```
 
 *sensors.json*:
@@ -79,6 +80,8 @@ Options:
                                   NGSI_REMOTE_PASS]
   --ngsi-remote-token TEXT        authentication token to use for the remote
                                   NGSI service  [env var: NGSI_REMOTE_TOKEN]
+  --ngsi-remote-https             use HTTPS for remote NGSI service  [env var:
+                                  NGSI_REMOTE_HTTPS;default: False]
   --sensors-definition-file FILENAME
                                   json file with the definition of the sensors
                                   [env var: SENSORS_DEFINITION_FILE;required]

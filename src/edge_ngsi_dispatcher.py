@@ -191,7 +191,9 @@ class MQTTConnection():
                         'Content-Type': 'application/json'
                     }
 
-                    _server = (f"http://{userdata['NGSI_REMOTE_HOST']}:"
+                    _schema = ('https' if userdata['NGSI_REMOTE_HTTPS']
+                               else 'http')
+                    _server = (f"{_schema}://{userdata['NGSI_REMOTE_HOST']}:"
                                f"{userdata['NGSI_REMOTE_PORT']}")
                     _resource = f"/v2/entities/{_entity_name}/attrs"
                     _url = f"{_server}{_resource}"
@@ -252,6 +254,9 @@ class MQTTConnection():
 @click.option('--ngsi-remote-token', envvar='NGSI_REMOTE_TOKEN',
               type=str, show_default=True, show_envvar=True,
               help=('authentication token to use for the remote NGSI service'))
+@click.option('--ngsi-remote-https', envvar='NGSI_REMOTE_HTTPS', default=False,
+              type=bool, show_default=True, show_envvar=True, is_flag=True,
+              help=('use HTTPS for remote NGSI service'))
 @click.option('--sensors-definition-file', envvar='SENSORS_DEFINITION_FILE',
               type=click.File('r'), show_default=True, show_envvar=True,
               required=True,
@@ -261,8 +266,8 @@ class MQTTConnection():
 def edge_ngsi_dispatcher(ctx, mqtt_local_host: str, mqtt_local_port: int,
                          ngsi_remote_host: str, ngsi_remote_port: int,
                          ngsi_remote_user: str, ngsi_remote_pass: str,
-                         ngsi_remote_token: str, sensors_definition_file: str,
-                         logging_level) -> None:
+                         ngsi_remote_token: str, ngsi_remote_https: bool,
+                         sensors_definition_file: str, logging_level) -> None:
     _level = getattr(logging, logging_level)
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -274,8 +279,9 @@ def edge_ngsi_dispatcher(ctx, mqtt_local_host: str, mqtt_local_port: int,
     logger.debug("local broker is mqtt://%s:%d",
                  mqtt_local_host, mqtt_local_port)
     logger.info(
-        "Pointing to NGSI server http://%s:%d. %s token provided.",
+        "Pointing to NGSI server %s:%d using %s protocol. %s token provided.",
         ngsi_remote_host, ngsi_remote_port,
+        'HTTPS' if ngsi_remote_https else 'HTTP',
         'Auth' if ngsi_remote_token else 'No auth')
 
     # Checks the Python Interpeter version
@@ -292,6 +298,7 @@ def edge_ngsi_dispatcher(ctx, mqtt_local_host: str, mqtt_local_port: int,
         'NGSI_REMOTE_USER': ngsi_remote_user,
         'NGSI_REMOTE_PASS': ngsi_remote_pass,
         'NGSI_REMOTE_TOKEN': ngsi_remote_token,
+        'NGSI_REMOTE_HTTPS': ngsi_remote_https,
         'SENSORS_DEFINITION': sensors_definition
     }
 
